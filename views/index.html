@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Cloud Storage</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        📸 Memories of Dekhtawala
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link" onclick="loadAllPhotos()">All Photos</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a href="#" class="nav-link">Filter by Date ▼</a>
+          <div class="dropdown-content" id="dateDropdown">
+            <div id="calendarContainer"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container">
+    <div id="loginBox">
+  <h2>Login</h2>
+
+  <input type="password" id="passwordInput" placeholder="Enter password">
+
+  <label class="show-password">
+    <input type="checkbox" onclick="togglePassword()">
+    Show password
+  </label>
+
+  <button onclick="login()">Login</button>
+  <p id="loginStatus"></p>
+</div>
+    <div class="upload-section">
+      <h1>Your Photo Storage</h1>
+      <div class="upload-box">
+        <input type="file" id="photoInput" accept="image/*" multiple />
+        <label for="photoInput" class="upload-label">
+          <span>📁 Click to Upload or Drag & Drop</span>
+        </label>
+        <button class="upload-btn" onclick="uploadPhotos()">Upload Photos</button>
+      </div>
+      <div id="uploadStatus" class="status-message"></div>
+    </div>
+
+    <!-- Photos Grid -->
+    <div class="gallery">
+      <h2>Your Photos</h2>
+      <div class="photos-grid" id="photosGrid">
+        <p class="empty-message">No photos yet. Upload some photos to get started!</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
