@@ -87,7 +87,7 @@ const s3 = new AWS.S3({
 });
 
 // Store photos metadata (in production, use a database)
-let photosDatabase = [];
+
 
 // Routes
 app.get('/', (req, res) => {
@@ -157,7 +157,7 @@ if (
   month: month
 };
 
-    photosDatabase.push(photoData);
+    
 
     // Delete local file
     fs.unlinkSync(req.file.path);
@@ -175,8 +175,44 @@ if (
 });
 
 // Get all photos
-app.get('/api/photos', (req, res) => {
-  res.json(photosDatabase);
+app.get('/api/photos', async (req, res) => {
+  try {
+
+    const data = await s3.listObjectsV2({
+      Bucket: process.env.B2_BUCKET,
+      Prefix: 'photos/'
+    }).promise();
+
+    const photos = data.Contents.map(file => {
+
+      const fileName = file.Key.split('/').pop();
+
+      return {
+        id: file.Key,
+        filename: fileName,
+        s3Key: file.Key,
+        s3Url: `https://${process.env.B2_BUCKET}.${process.env.B2_ENDPOINT}/${file.Key}`,
+        uploadDate: file.LastModified,
+
+        year: new Date(file.LastModified).getFullYear(),
+        month: new Date(file.LastModified).getMonth()
+      };
+
+    }).sort((a, b) => {
+      return new Date(b.uploadDate) - new Date(a.uploadDate);
+    });
+
+    res.json(photos);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
 });
 
 // Get photos by year and month
@@ -196,20 +232,20 @@ app.delete('/api/photos/:id', requireAuth, async (req, res) => {
   try {
     const photoId = parseInt(req.params.id);
 
-    const photo = photosDatabase.find(p => p.id === photoId);
+    const photoKey = decodeURIComponent(req.params.id);
 
-    if (!photo) {
+    if (!photoKey) {
       return res.status(404).json({
         error: 'Photo not found'
       });
     }
 
-    console.log("DELETING:", photo.s3Key);
+    console.log("DELETING:", photoKey);
 
     // Delete from Backblaze
     const versions = await s3.listObjectVersions({
   Bucket: process.env.B2_BUCKET,
-  Prefix: photo.s3Key
+  Prefix: photoKey
 }).promise();
 
 for (const version of versions.Versions || []) {

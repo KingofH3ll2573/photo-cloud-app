@@ -153,7 +153,7 @@ function displayPhotos(photos) {
     card.innerHTML = `
       <img src="${photo.s3Url}" alt="${photo.filename}" onerror="this.src='/placeholder.png'">
       <div class="photo-overlay">
-        <button class="delete-btn" onclick="deletePhoto(${photo.id})">Delete</button>
+        <button class="delete-btn" onclick="deletePhoto('${photo.s3Key}')">Delete</button>
       </div>
     `;
     grid.appendChild(card);
@@ -167,7 +167,7 @@ async function deletePhoto(id) {
   }
 
   try {
-    const response = await fetch(`/api/photos/${id}`, {
+    const response = await fetch(`/api/photos/${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
 
