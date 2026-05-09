@@ -227,60 +227,52 @@ app.get('/api/photos/:year/:month', (req, res) => {
   res.json(filtered);
 });
 
+
 // Delete photo
 app.delete('/api/photos/:id', requireAuth, async (req, res) => {
   try {
-    const photoId = parseInt(req.params.id);
 
     const photoKey = decodeURIComponent(req.params.id);
 
-    if (!photoKey) {
-      return res.status(404).json({
-        error: 'Photo not found'
-      });
-    }
-
     console.log("DELETING:", photoKey);
 
-    // Delete from Backblaze
     const versions = await s3.listObjectVersions({
-  Bucket: process.env.B2_BUCKET,
-  Prefix: photoKey
-}).promise();
+      Bucket: process.env.B2_BUCKET,
+      Prefix: photoKey
+    }).promise();
 
-for (const version of versions.Versions || []) {
-  await s3.deleteObject({
-    Bucket: process.env.B2_BUCKET,
-    Key: version.Key,
-    VersionId: version.VersionId
-  }).promise();
-}
+    // Delete actual file versions
+    for (const version of versions.Versions || []) {
+      await s3.deleteObject({
+        Bucket: process.env.B2_BUCKET,
+        Key: version.Key,
+        VersionId: version.VersionId
+      }).promise();
+    }
 
-for (const marker of versions.DeleteMarkers || []) {
-  await s3.deleteObject({
-    Bucket: process.env.B2_BUCKET,
-    Key: marker.Key,
-    VersionId: marker.VersionId
-  }).promise();
-}
+    // Delete hidden markers
+    for (const marker of versions.DeleteMarkers || []) {
+      await s3.deleteObject({
+        Bucket: process.env.B2_BUCKET,
+        Key: marker.Key,
+        VersionId: marker.VersionId
+      }).promise();
+    }
 
     console.log("DELETED FROM BACKBLAZE");
-
-    // Remove from memory database
-    photosDatabase = photosDatabase.filter(
-      p => p.id !== photoId
-    );
 
     res.json({
       success: true
     });
 
   } catch (error) {
+
     console.error("DELETE ERROR:", error);
 
     res.status(500).json({
       error: error.message
     });
+
   }
 });
 // Get available years and months
