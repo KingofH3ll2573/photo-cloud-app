@@ -202,6 +202,7 @@ window.addEventListener('load', () => {
   // hide upload section until login
   document.querySelector('.upload-section').style.display = 'none';
   document.querySelector('.gallery').style.display = 'none';
+  document.querySelector('.gallery').style.display = 'none';
 });
 
 async function login() {
@@ -222,6 +223,7 @@ async function login() {
 
     // show upload section
     document.querySelector('.upload-section').style.display = 'block';
+    document.querySelector('.gallery').style.display = 'block';
     document.querySelector('.gallery').style.display = 'block';
   } else {
     status.textContent = "Wrong password";
