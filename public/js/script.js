@@ -150,12 +150,25 @@ function displayPhotos(photos) {
   photos.forEach(photo => {
     const card = document.createElement('div');
     card.className = 'photo-card';
-    card.innerHTML = `
-      <img src="${photo.s3Url}" alt="${photo.filename}" onerror="this.src='/placeholder.png'">
-      <div class="photo-overlay">
-        <button class="delete-btn" onclick="deletePhoto('${photo.s3Key}')">Delete</button>
-      </div>
-    `;
+    const isVideo =
+    photo.filename.toLowerCase().endsWith(".mov") ||
+    photo.filename.toLowerCase().endsWith(".mp4");
+
+card.innerHTML = `
+    ${
+        isVideo
+        ? `<video controls preload="metadata">
+                <source src="${photo.s3Url}">
+           </video>`
+        : `<img src="${photo.s3Url}" alt="${photo.filename}">`
+    }
+
+    <div class="photo-overlay">
+        <button class="delete-btn" onclick="deletePhoto('${photo.s3Key}')">
+            Delete
+        </button>
+    </div>
+`;
     grid.appendChild(card);
   });
 }
